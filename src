@@ -1,0 +1,102 @@
+-- Passo 1: Criação do Banco de Dados
+DROP DATABASE IF EXISTS sistema_eventos;
+CREATE DATABASE sistema_eventos;
+USE sistema_eventos;
+
+-- Passo 2: Criação das Tabelas
+
+-- Tabela Eventos
+CREATE TABLE Eventos (
+    id_evento INT AUTO_INCREMENT PRIMARY KEY,
+    nome_evento VARCHAR(100) NOT NULL,
+    data_evento DATE NOT NULL,
+    local_evento VARCHAR(100) NOT NULL,
+    descricao TEXT
+);
+
+-- Tabela Participantes
+CREATE TABLE Participantes (
+    id_participante INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    telefone VARCHAR(15)
+);
+
+-- Tabela Inscrições
+CREATE TABLE Inscricoes (
+    id_inscricao INT AUTO_INCREMENT PRIMARY KEY,
+    id_evento INT,
+    id_participante INT,
+    data_inscricao DATE NOT NULL,
+    FOREIGN KEY (id_evento) REFERENCES Eventos(id_evento) ON DELETE CASCADE,
+    FOREIGN KEY (id_participante) REFERENCES Participantes(id_participante) ON DELETE CASCADE
+);
+
+-- Passo 3: Inserção de Dados
+
+-- Inserindo eventos
+INSERT INTO Eventos (nome_evento, data_evento, local_evento, descricao) VALUES
+('Conferência de Tecnologia', '2024-09-10', 'São Paulo', 'Uma conferência sobre as novas tendências em tecnologia.'),
+('Workshop de Marketing Digital', '2024-09-15', 'Rio de Janeiro', 'Um workshop intensivo sobre estratégias de marketing digital.'),
+('Seminário de Sustentabilidade', '2024-09-20', 'Curitiba', 'Seminário sobre práticas de sustentabilidade nas empresas.');
+
+-- Inserindo participantes
+INSERT INTO Participantes (nome, email, telefone) VALUES
+('Lucas Lima', 'lucas.lima@email.com', '4444-4444'),
+('Fernanda Costa', 'fernanda.costa@email.com', '5555-5555'),
+('Mariana Silva', 'mariana.silva@email.com', '6666-6666');
+
+-- Inserindo inscrições
+INSERT INTO Inscricoes (id_evento, id_participante, data_inscricao) VALUES
+(1, 1, '2024-08-01'),
+(2, 2, '2024-08-05'),
+(3, 3, '2024-08-10'),
+(1, 3, '2024-08-15'),
+(2, 1, '2024-08-20');
+
+-- Passo 4: Consultas
+
+-- Visualizar todos os eventos disponíveis
+SELECT * FROM Eventos;
+
+-- Consultar a lista de participantes inscritos em um evento específico (exemplo: evento 1)
+SELECT Participantes.nome, Participantes.email, Participantes.telefone
+FROM Inscricoes
+JOIN Participantes ON Inscricoes.id_participante = Participantes.id_participante
+WHERE Inscricoes.id_evento = 1;
+
+-- Verificar todos os eventos nos quais um determinado participante está inscrito (exemplo: participante 1)
+SELECT Eventos.nome_evento, Eventos.data_evento, Eventos.local_evento
+FROM Inscricoes
+JOIN Eventos ON Inscricoes.id_evento = Eventos.id_evento
+WHERE Inscricoes.id_participante = 1;
+
+-- Passo 5: Atualização de Dados
+
+-- Atualizar a data e local de um evento
+UPDATE Eventos
+SET data_evento = '2024-09-12', local_evento = 'Brasília'
+WHERE id_evento = 1;
+
+-- Atualizar as informações de contato de um participante
+UPDATE Participantes
+SET telefone = '7777-7777'
+WHERE id_participante = 2;
+
+-- Passo 6: Deleção de Dados
+
+-- Remover eventos passados do banco de dados (exemplo: eventos antes de 2024-09-15)
+DELETE FROM Eventos
+WHERE data_evento < '2024-09-15';
+
+-- Cancelar a inscrição de um participante em um evento específico (exemplo: inscrição 1)
+DELETE FROM Inscricoes WHERE id_inscricao = 1;
+
+-- Passo 7: Funcionalidades Extras
+
+-- Listar todos os participantes que se inscreveram em mais de um evento
+SELECT Participantes.nome, COUNT(Inscricoes.id_inscricao) AS total_inscricoes
+FROM Inscricoes
+JOIN Participantes ON Inscricoes.id_participante = Participantes.id_participante
+GROUP BY Participantes.nome
+HAVING COUNT(Inscricoes.id_inscricao) > 1;
