@@ -1,0 +1,6 @@
+# Ignorar arquivos temporários, logs e credenciais sensíveis
+*.log
+*.sql~
+.env
+.DS_Store
+node_modules/
